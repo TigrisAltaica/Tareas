@@ -1,6 +1,8 @@
 module Intervals
 
-export Interval, +,-,*,/
+import Base.==, Base.contains
+
+export Interval, +,-,*,/, ==,^, midpoint, contains
 
 #Ahora quiero implementar redondeo. lo más lógico es redondear el primer número para abajo y el segundo para arriba
 type Interval
@@ -10,6 +12,8 @@ type Interval
     
 end
     
+
+#Estas funciones sirven para hacer aritmética con redondeo dirigido
 
 
 function UpSum(x,y)
@@ -60,16 +64,37 @@ function DownDiv(x,y)
     end
 end
 
+function UpExp(x,y)
+    with_rounding(Float64,RoundUp) do
+        x^y
+    end
+end
+
+function DownExp(x,y)
+    with_rounding(Float64,RoundDown) do
+        x^y
+    end
+end
+
+#Revisa si un número dado está en un intervalo
+
+function contains(x::Interval, n::Real)
+	
+	n>=x.a && n<=x.b
+end
+
+#Aritmética de intervalos
+
 function +(x::Interval, y::Interval)
     
-    z=Interval(UpSum(x.a,y.a),UpSum(x.b,y.b))
+    z=Interval(DownSum(x.a,y.a),UpSum(x.b,y.b))
     
 end
 
 
 function -(x::Interval, y::Interval)
     
-    z=Interval(UpSubs(x.a,y.a),UpSubs(x.b,y.b))
+    z=Interval(DownSubs(x.a,y.a),UpSubs(x.b,y.b))
     
 end
 
@@ -86,9 +111,53 @@ end
 
 function /(x::Interval, y::Interval)
     
+    if contains(y,0.0)
+	error("No puedo dividir por un intervalo que contiene el 0")
+    end	
     
     z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
     
 end
+
+#potencia de un intervalo
+
+function ^(x::Interval,n::Real)
+
+	if isodd(n) 
+		Interval(x.a^n,x.b^n)
+	end
+
+	if iseven(n)
+		if x.a>=0
+			Interval(x.a^n,x.b^n)
+		else
+			Interval(0,x.b^n)
+		end
+	end
+end
+		
+			
+
+
+
+
+#Punto medio de un intervalo
+
+function midpoint(x::Interval)
+	
+	(x.a+x.b)/2
+end
+
+#Comparación de intervalos
+
+function ==(x::Interval, y::Interval)
+	
+	(x.a == y.a) && (x.b == y.b)
+
+end
+
+
+
+
 
 end
