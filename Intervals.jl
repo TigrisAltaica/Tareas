@@ -1,6 +1,6 @@
 module Intervals
 
-import Base.==, Base.contains, Base.^
+import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos
 
 export Interval, +,-,*,/, ==,^, midpoint, contains
 
@@ -96,7 +96,7 @@ end
 
 function -(x::Interval, y::Interval)
     
-    z=Interval(DownSubs(x.a,y.a),UpSubs(x.b,y.b))
+    z=Interval(DownSubs(x.a,y.b),UpSubs(x.b,y.a))
     
 end
 
@@ -160,11 +160,38 @@ function ^(x::Interval,n::Int64)
     if iseven(n)
         if x.a>=0
             Interval((x.a)^n,(x.b)^n)
-        else
-            Interval(0,x.b^n)
+            elseif x.b >= 0
+                Interval(0,max(x.a^n,x.b^n))
+            else
+                Interval((x.a)^n,(x.b)^n)
         end
     end
 end
+
+function ^(x::Interval,n::Float64)
+
+
+    
+    if x.b < 0
+	error("Intervalo completamente negativo, al menos parte del intervalo debe ser no negativo")
+    end	
+
+    if x.a < 0
+	x.a=0
+        println("Solo se utilizó la parte no negativa del intervalo")
+    end
+	
+    return(Interval(x.a^n,x.b^n))
+
+end
+
+#Longitud de in intervalo
+
+function length(x::Interval)
+
+	return(abs(x.b)-abs(x.a))
+end
+
 
 		
 			
@@ -183,8 +210,52 @@ function ==(x::Interval, y::Interval)
 
 end
 
+#Funciones monótonas estandard
 
+function exp(x::Interval)
 
+	Interval(exp(x.a),exp(x.b))
 
+end
+
+function log(x::Interval)
+
+	Interval(log(x.a),log(x.b))
+end
+
+#Funciones trigonométricas
+
+function cos(x::Interval)
+    
+    n2=int(x.b/pi)
+    n1=int(x.a/pi)
+    a=0
+    b=0
+    
+    
+    for i=n1:n2
+        
+        if contains(x,i*pi)
+            if iseven(i)
+                b=1
+            end
+            if isodd(i)
+                a=-1
+            end
+            
+        end
+    end
+    
+    
+    if a == 0
+        a=min(cos(x.a),cos(x.b))
+    end
+    
+    if b == 0
+        b=max(cos(x.a),cos(x.b))
+    end
+    
+    return(Interval(a,b))
+end
 
 end
