@@ -1,6 +1,6 @@
 module Intervals
 
-import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos
+import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
 export Interval, +,-,*,/, ==,^, midpoint, contains
 
@@ -125,9 +125,9 @@ end
 
 function /(x::Interval, y::Interval)
     
-    if contains(y,0.0)
-	error("No puedo dividir por un intervalo que contiene el 0")
-    end	
+    #if contains(y,0.0)
+	#error("No puedo dividir por un intervalo que contiene el 0")
+   # end	
     
     z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
     
@@ -139,15 +139,6 @@ function *( y::Float64,x::Interval)
     
 end
 
-function /(x::Interval, y::Interval)
-    
-    if contains(y,0.0)
-	error("No puedo dividir por un intervalo que contiene el 0")
-    end	
-    
-    z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
-    
-end
 
 #potencia de un intervalo
 
@@ -256,6 +247,16 @@ function cos(x::Interval)
     end
     
     return(Interval(a,b))
+end
+
+function sin(x::Interval)
+
+	return(cos(x-pi/2))
+end
+
+function tan(x::Interval)
+
+	return(sin(x)/cos(x))
 end
 
 end
