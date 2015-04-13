@@ -2,8 +2,7 @@ module Intervals
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-export Interval, +,-,*,/, ==,^, midpoint, contains
-
+export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength
 #Ahora quiero implementar redondeo. lo más lógico es redondear el primer número para abajo y el segundo para arriba
 type Interval
     
@@ -100,14 +99,26 @@ function -(x::Interval, y::Interval)
     
 end
 
-function +(x::Interval, y::Float64)
+function +(y::Interval, x::Real)
+    
+    z=Interval(DownSum(x,y.a),UpSum(x,y))
+    
+end
+
+function +(x::Interval, y::Real)
     
     z=Interval(DownSum(x.a,y),UpSum(x.b,y))
     
 end
 
+function -(y::Interval, x::Real)
+    
+    z=Interval(DownSubs(x.a,y),UpSubs(x.b,y))
+    
+end
 
-function -(x::Interval, y::Float64)
+
+function -(x::Interval, y::Real)
     
     z=Interval(DownSubs(x.a,y),UpSubs(x.b,y))
     
@@ -123,26 +134,34 @@ function *(x::Interval, y::Interval)
     
 end
 
-function /(x::Interval, y::Interval)
-    
-    #if contains(y,0.0)
-	#error("No puedo dividir por un intervalo que contiene el 0")
-   # end	
-    
-    z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
-    
-end
-
-function *( y::Float64,x::Interval)
+function *( y::Real,x::Interval)
     
     z=Interval(DownProd(x.a,y),UpProd(x.b,y))
     
 end
 
+function *( x::Interval,y::Real)
+    
+    z=Interval(DownProd(x.a,y),UpProd(x.b,y))
+    
+end
+
+function /(x::Interval, y::Interval)
+    
+   if contains(y,0.0)
+	error("No puedo dividir por un intervalo que contiene el 0")
+   end	
+    
+    z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
+    
+end
+
+
+
 
 #potencia de un intervalo
 
-function ^(x::Interval,n::Int64)
+function ^(x::Interval,n::Integer)
 
     if isodd(n) 
         return(Interval(x.a^n,x.b^n))
@@ -159,7 +178,7 @@ function ^(x::Interval,n::Int64)
     end
 end
 
-function ^(x::Interval,n::Float64)
+function ^(x::Interval,n::Real)
 
 
     
@@ -176,11 +195,13 @@ function ^(x::Interval,n::Float64)
 
 end
 
+
+
 #Longitud de in intervalo
 
-function length(x::Interval)
+function IntervalLength(x::Interval)
 
-	return(abs(x.b)-abs(x.a))
+	return(abs(x.b-x.a))
 end
 
 

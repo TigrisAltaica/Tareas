@@ -3,6 +3,8 @@ module Derivatives
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
+using Intervals
+
 export Derive,makex, +,-,*,/, ==,^
 
 
@@ -11,8 +13,8 @@ export Derive,makex, +,-,*,/, ==,^
 
 type Derive
     
-    f::Float64
-    d::Float64
+    f
+    d
     
     
     Derive(f,d) = new(f,d)
@@ -24,179 +26,119 @@ end
 
 function +(v::Derive,w::Derive)
     
-    y=Derive(0,0)
-    
-    y.f = (v.f+w.f)
-    y.d = (v.d+w.d)
-    
-    y
+    return(Derive(v.f+w.f,v.d+w.d))
+   
 end
 
 function +(v::Real,w::Derive)
     
-    y=Derive(0,0)
+    v=Derive(v)
     
-    y.f = (w.f+v)
-    y.d = (w.d+v)
-    
-    y
+    return(Derive(v.f+w.f,v.d+w.d))
+
 end
 
-function +(v::Derive,w::Int)
+function +(w::Derive,v::Real)
     
-    y=Derive(0,0)
+    v=Derive(v)
     
-    y.f = (v.f+w)
-    y.d = (v.d+w)
-    
-    y
+    return(Derive(v.f+w.f,v.d+w.d))
 end
 
-function +(v::Derive,w::Real)
-    
-    y=Derive(0,0)
-    
-    y.f = (v.f+w)
-    y.d = (v.d+w)
-    
-    y
-end
+
 
 function -(v::Derive,w::Derive)
     
-    y=Derive(0,0)
-    
-    y.f = (v.f-w.f)
-    y.d = (v.d-w.d)
-    
-    y
+	return(Derive(v.f-w.f,v.d-w.d))
 end
 
 function -(v::Real,w::Derive)
+ 
     
-    y=Derive(0,0)
-    
-    y.f = (v-w.f)
-    y.d = (w.d)
-    
-    y
+    return(Derive(v.f-w.f,v.d-w.d))
+
 end
 
-function -(v::Derive,w::Real)
+function -(w::Derive,v::Real)
     
-    y=Derive(0,0)
+    v=Derive(v)
     
-    y.f = (v.f-w)
-    y.d = (v.d)
-    
-    y
+    return(Derive(w.f-v.f,w.d-v.d))
 end
 
 function *(v::Derive,w::Derive)
     
-    y=Derive(0,0)
-    
-    y.f = (v.f*w.f)
-    y.d = (v.d*w.f+v.f+w.d)
-    
-    y
+    return(Derive(v.f*w.f,v.d*w.f+v.f+w.d))
+
 end
 
 function *(c::Real,v::Derive)
-    y=Derive(0,0)
     
-    y.f = v.f*c
-    y.d = v.d*c
-    
-    y
+    return(Derive(v.f*c,v.d*c))
+
 end
 
 
 function /(v::Derive,w::Derive)
     
-    y=Derive(0,0)
+    return(Derive(v.f/w.f,(v.d*w.f-w.d*v.f)/(w.f)^2))
     
-    y.f = (v.f/w.f)
-    y.d = (v.d*w.f-w.d*v.f)/(w.f)^2
-    
-    y
 end
 
 function ^(v::Derive,c::Real)
     
-    y=Derive(0,0)
-    
-    y.f = v.f^c
-    y.d = c*(v.f^(c-1.0))*v.d
-    
-    y
+    return(Derive( v.f^c,c*(v.f^(c-1.0))*v.d))
+
 end
 
-function ^(v::Derive,c::Real)
+function ^(v::Derive,c::Integer)
     
-    y=Derive(0,0)
-    
-    y.f = v.f^c
-    y.d = c*(v.f^(c-1.0))*v.d
-    
-    y
-end  
+    return(Derive( v.f^c,c*(v.f^(c-1))*v.d))
+
+end
+
 
 function makex(x)
     
     y = Derive(x,1)
 end
 
+function makex(x::Interval)
+    
+    y = Derive(x,Interval(1,1))
+end
+
+
 #Ahora redefino las funciones trigonométricas etc para que funciones con mi nuevo tipo
 
 function Base.sin(v::Derive)
     
-    y=Derive(0,0)
+    return(Derive(sin(v.f),-cos(v.f)*v.d))
     
-    y.f = sin(v.f)
-    y.d = -cos(v.f)*v.d
-    
-    y
 end
 
 function Base.cos(v::Derive)
     
-    y=Derive(0,0)
-    
-    y.f = cos(v.f)
-    y.d = sin(v.f)*v.d
-    
-    y
+    return(Derive(cos(v.f),sin(v.f)*v.d))
+  
 end
 
 function Base.tan(v::Derive)
      
-    y=Derive(0,0)
+    return(Derive(tan(v.f),v.d*sec(v.f)^2))
     
-    y.f = tan(v.f)
-    v.d = v.d*sec(v.f)^2
-    
-    y
 end   
 
 function Base.exp(v::Derive)
     
-    y=Derive(0,0)
+    return(Derive(exp(v.f),v.d*exp(v.f)))
     
-    y.f = exp(v.f)
-    v.d = v.d*exp(v.f)
-    
-    y
 end
 
 function Base.log(v::Derive)
      
-    y=Derive(0,0)
-    
-    y.f = log(v.f)
-    v.d = v.d/(v.f)
-    
-    y
+    return(Derive(log(v.f),v.d/(v.f)))
+
 end  
 
 end 
