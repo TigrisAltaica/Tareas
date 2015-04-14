@@ -3,9 +3,8 @@ module Derivatives
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-using Intervals
 
-export Derive,makex, +,-,*,/, ==,^
+export Derive,makex, +,-,*,/, ==,^,GetFunctionValue,GetDerivativeValue
 
 
 
@@ -14,12 +13,10 @@ export Derive,makex, +,-,*,/, ==,^
 type Derive
     
     f
-    d
-    
-    
-    Derive(f,d) = new(f,d)
-    Derive(f) = new(f,0)
+    d  
 end
+
+Derive(f) = Derive(f,0)
 
 #Redefino las operaciones aritméticas siguiendo las convenciones de arriba
 
@@ -103,11 +100,6 @@ function makex(x)
     y = Derive(x,1)
 end
 
-function makex(x::Interval)
-    
-    y = Derive(x,Interval(1,1))
-end
-
 
 #Ahora redefino las funciones trigonométricas etc para que funciones con mi nuevo tipo
 
@@ -140,5 +132,21 @@ function Base.log(v::Derive)
     return(Derive(log(v.f),v.d/(v.f)))
 
 end  
+
+function ==(v::Derive,w::Derive)
+	
+	(v.f == w.f) && (v.d == w.d)
+
+end
+
+function GetFunctionValue(f::Function,x)
+	
+	return(f(makex(x)).f)
+end
+
+function GetDerivativeValue(f::Function,x)
+	
+	return(f(makex(x)).d)
+end
 
 end 
