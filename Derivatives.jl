@@ -51,7 +51,7 @@ end
 
 function -(v::Real,w::Derive)
  
-    
+    v=Derive(v)
     return(Derive(v.f-w.f,v.d-w.d))
 
 end
@@ -70,6 +70,12 @@ function *(v::Derive,w::Derive)
 end
 
 function *(c::Real,v::Derive)
+    
+    return(Derive(v.f*c,v.d*c))
+
+end
+
+function *(v::Derive,c::Real)
     
     return(Derive(v.f*c,v.d*c))
 
