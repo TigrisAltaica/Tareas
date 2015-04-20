@@ -2,7 +2,7 @@ module Intervals
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength
+export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength, NewtonOperator, Intersection
 #Ahora quiero implementar redondeo. lo más lógico es redondear el primer número para abajo y el segundo para arriba
 type Interval
     
@@ -84,6 +84,11 @@ function contains(x::Interval, n::Real)
 	n>=x.a && n<=x.b
 end
 
+function contains(x::Interval, y::Interval)
+	
+	contains(x,y.a)&&contains(x,y.b)
+end
+
 #Aritmética de intervalos
 
 function +(x::Interval, y::Interval)
@@ -111,16 +116,16 @@ function +(x::Interval, y::Real)
     
 end
 
-function -(y::Interval, x::Real)
+function -(x::Interval, y::Real)
     
     z=Interval(DownSubs(x.a,y),UpSubs(x.b,y))
     
 end
 
 
-function -(x::Interval, y::Real)
+function -(x::Real,y::Interval)
     
-    z=Interval(DownSubs(x.a,y),UpSubs(x.b,y))
+    z=Interval(DownSubs(x,y.a),UpSubs(x,y.b))
     
 end
 
@@ -157,7 +162,15 @@ function /(x::Interval, y::Interval)
 end
 
 
-
+function /(x::Real, y::Interval)
+    
+   if contains(y,0.0)
+	error("No puedo dividir por un intervalo que contiene el 0")
+   end	
+    
+    z=Interval(min(DownDiv(x,y.a),DownDiv(x,y.b)),max(UpDiv(x,y.a),UpDiv(x,y.b)))
+    
+end
 
 #potencia de un intervalo
 
@@ -211,7 +224,7 @@ end
 
 function midpoint(x::Interval)
 	
-	(x.a+x.b)/2
+	return(Interval(DownDiv(DownSum(x.a,x.b),2),UpDiv(UpSum(x.a,x.b),2)))
 end
 
 #Comparación de intervalos
@@ -278,6 +291,44 @@ end
 function tan(x::Interval)
 
 	return(sin(x)/cos(x))
+end
+
+
+#Operador de Newton
+
+function NewtonOperator(F::Function,dF::Interval,X::Interval)
+    
+    m=midpoint(X)
+
+    return(m-F(m)/dF)
+    
+    
+end
+
+#Interseccion de dos intervalos
+
+function Intersection(A::Interval,B::Interval)
+    
+    if(A.a > B.b || B.a > A.b)
+        return("No hay intersección")
+    end
+    
+    if(contains(A,B))
+        return(B)
+    end
+    
+    if(contains(B,A))
+        return(A)
+    end
+    
+    if(A.b<=B.b)
+        return(Interval(B.a,A.b))
+    end
+    
+    if(B.b<=A.b)
+        return(Interval(A.a,B.b))
+    end
+   
 end
 
 end
