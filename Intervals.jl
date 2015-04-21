@@ -2,7 +2,7 @@ module Intervals
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength, NewtonOperator, Intersection
+export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength, NewtonOperator, Intersection, BisectInterval
 #Ahora quiero implementar redondeo. lo más lógico es redondear el primer número para abajo y el segundo para arriba
 type Interval
     
@@ -106,11 +106,11 @@ end
 
 function +(y::Interval, x::Real)
     
-    z=Interval(DownSum(x,y.a),UpSum(x,y))
+    z=Interval(DownSum(x,y.a),UpSum(x,y.b))
     
 end
 
-function +(x::Interval, y::Real)
+function +(y::Real,x::Interval)
     
     z=Interval(DownSum(x.a,y),UpSum(x.b,y))
     
@@ -310,7 +310,7 @@ end
 function Intersection(A::Interval,B::Interval)
     
     if(A.a > B.b || B.a > A.b)
-        return("No hay intersección")
+   	return(nothing)
     end
     
     if(contains(A,B))
@@ -329,6 +329,15 @@ function Intersection(A::Interval,B::Interval)
         return(Interval(A.a,B.b))
     end
    
+end
+
+
+function BisectInterval(x::Interval)
+    
+    c=(x.a+x.b)/2.0
+
+    return([Interval(x.a,c),Interval(c,x.b)])
+    
 end
 
 end
