@@ -93,39 +93,39 @@ end
 
 function +(x::Interval, y::Interval)
     
-    z=Interval(DownSum(x.a,y.a),UpSum(x.b,y.b))
+    return(Interval(DownSum(x.a,y.a),UpSum(x.b,y.b)))
     
 end
 
 
 function -(x::Interval, y::Interval)
     
-    z=Interval(DownSubs(x.a,y.b),UpSubs(x.b,y.a))
+    return(Interval(DownSubs(x.a,y.b),UpSubs(x.b,y.a)))
     
 end
 
 function +(y::Interval, x::Real)
     
-    z=Interval(DownSum(x,y.a),UpSum(x,y.b))
+    return(Interval(DownSum(x,y.a),UpSum(x,y.b)))
     
 end
 
 function +(y::Real,x::Interval)
     
-    z=Interval(DownSum(x.a,y),UpSum(x.b,y))
+    return(Interval(DownSum(x.a,y),UpSum(x.b,y)))
     
 end
 
 function -(x::Interval, y::Real)
     
-    z=Interval(DownSubs(x.a,y),UpSubs(x.b,y))
+    return(Interval(DownSubs(x.a,y),UpSubs(x.b,y)))
     
 end
 
 
 function -(x::Real,y::Interval)
     
-    z=Interval(DownSubs(x,y.a),UpSubs(x,y.b))
+    return(Interval(DownSubs(x,y.a),UpSubs(x,y.b)))
     
 end
 
@@ -135,19 +135,19 @@ end
 
 function *(x::Interval, y::Interval)
     
-    z=Interval(min(DownProd(x.a,y.a),DownProd(x.a,y.b),DownProd(x.b,y.a),DownProd(x.b,y.b)),max(UpProd(x.a,y.a),UpProd(x.a,y.b),UpProd(x.b,y.a),UpProd(x.b,y.b)))
+    return(Interval(min(DownProd(x.a,y.a),DownProd(x.a,y.b),DownProd(x.b,y.a),DownProd(x.b,y.b)),max(UpProd(x.a,y.a),UpProd(x.a,y.b),UpProd(x.b,y.a),UpProd(x.b,y.b))))
     
 end
 
 function *( y::Real,x::Interval)
     
-    z=Interval(DownProd(x.a,y),UpProd(x.b,y))
+    return(Interval(DownProd(x.a,y),UpProd(x.b,y)))
     
 end
 
 function *( x::Interval,y::Real)
     
-    z=Interval(DownProd(x.a,y),UpProd(x.b,y))
+    return(Interval(DownProd(x.a,y),UpProd(x.b,y)))
     
 end
 
@@ -157,7 +157,7 @@ function /(x::Interval, y::Interval)
 	error("No puedo dividir por un intervalo que contiene el 0")
    end	
     
-    z=Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b)))
+    return(Interval(min(DownDiv(x.a,y.a),DownDiv(x.a,y.b),DownDiv(x.b,y.a),DownDiv(x.b,y.b)),max(UpDiv(x.a,y.a),UpDiv(x.a,y.b),UpDiv(x.b,y.a),UpDiv(x.b,y.b))))
     
 end
 
@@ -168,7 +168,7 @@ function /(x::Real, y::Interval)
 	error("No puedo dividir por un intervalo que contiene el 0")
    end	
     
-    z=Interval(min(DownDiv(x,y.a),DownDiv(x,y.b)),max(UpDiv(x,y.a),UpDiv(x,y.b)))
+    return(Interval(min(DownDiv(x,y.a),DownDiv(x,y.b)),max(UpDiv(x,y.a),UpDiv(x,y.b))))
     
 end
 
@@ -226,6 +226,8 @@ function midpoint(x::Interval)
 	
 	return(Interval(DownDiv(DownSum(x.a,x.b),2),UpDiv(UpSum(x.a,x.b),2)))
 end
+
+
 
 #Comparación de intervalos
 
