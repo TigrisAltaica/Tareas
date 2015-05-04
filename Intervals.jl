@@ -2,7 +2,7 @@ module Intervals
 
 import Base.==, Base.contains, Base.^, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength, NewtonOperator, Intersection, BisectInterval
+export Interval, +,-,*,/, ==,^, midpoint, contains, IntervalLength, NewtonOperator, Intersection, BisectInterval, MultiDimInterval, MakeMultiDimInterval
 #Ahora quiero implementar redondeo. lo más lógico es redondear el primer número para abajo y el segundo para arriba
 type Interval
     
@@ -341,5 +341,140 @@ function BisectInterval(x::Interval)
     return([Interval(x.a,c),Interval(c,x.b)])
     
 end
+
+#Intervalos Multidimensionales
+
+type MultiDimInterval
+    
+    N::Int
+    I::Vector{Interval}
+    
+end
+
+function MakeMultiDimInterval(N,L)
+
+    I=Interval[]
+    
+    for i=1:N
+        push!(I,Interval(-L,L))
+    end
+    
+    return(MultiDimInterval(N,I))
+
+end
+
+function +(A::MultiDimInterval, B::MultiDimInterval)
+    
+    if A.N != B.N
+        error("Las dimensiones de los intervalos no son iguales")
+    end
+    
+    temp = Interval[]
+    
+    for i = 1:A.N
+        push!(temp,A.I[i]+B.I[i])
+    end
+    
+    return(MultiDimInterval(A.N,temp))
+end
+
+function +(A::Real, B::MultiDimInterval)
+
+    
+    temp = Interval[]
+    
+    for i = 1:B.N
+        push!(temp,A+B.I[i])
+    end
+    
+    return(MultiDimInterval(B.N,temp))
+end
+
+function +(A::MultiDimInterval, B::Real)
+    
+    temp = Interval[]
+    
+    for i = 1:A.N
+        push!(temp,A.I[i]+B)
+    end
+    
+    return(MultiDimInterval(A.N,temp))
+end
+
+function -(A::MultiDimInterval, B::MultiDimInterval)
+    
+    if A.N != B.N
+        error("Las dimensiones de los intervalos no son iguales")
+    end
+    
+    temp = Interval[]
+    
+    for i = 1:A.N
+        push!(temp,A.I[i]-B.I[i])
+    end
+    
+    return(MultiDimInterval(A.N,temp))
+end
+
+function -(A::Real, B::MultiDimInterval)
+
+    
+    temp = Interval[]
+    
+    for i = 1:B.N
+        push!(temp,A-B.I[i])
+    end
+    
+    return(MultiDimInterval(B.N,temp))
+end
+
+function -(A::MultiDimInterval, B::Real)
+    
+    temp = Interval[]
+    
+    for i = 1:A.N
+        push!(temp,A.I[i]-B)
+    end
+    
+    return(MultiDimInterval(A.N,temp))
+end
+
+function *(A::Real, B::MultiDimInterval)
+    
+    temp = Interval[]
+    
+    for i = 1:B.N
+        push!(temp,A*B.I[i])
+    end
+    
+    return(MultiDimInterval(B.N,temp))
+end
+
+function *(B::MultiDimInterval,A::Real)
+    
+    temp = Interval[]
+    
+    for i = 1:B.N
+        push!(temp,A*B.I[i])
+    end
+    
+    return(MultiDimInterval(B.N,temp))
+end
+
+
+#Redefinición de la funcion zero para poder utilizar multiplicar arreglos de intervalos por matrices
+
+Base.promote_type{T<:Number}(::Type{T}, ::Type{Interval}) = Interval
+#Base.promote_type(::Type{Interval}, ::Type{Number}) = Interval
+#Base.promote(x::Number, y::Interval) = Interval(x, x
+
+Base.convert(::Type{Interval}, x::Real) = Interval(x, x)
+Base.convert(::Type{Interval}, x::Interval) = x
+
+Base.zero(::Type{Interval}) = Interval(0,0)
+promote_type(Int, Interval)
+
+Base.zero(x::Interval) = Interval(0, 0)
+Base.zero(x::Any) = 0
 
 end
